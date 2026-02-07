@@ -7,7 +7,7 @@ export default async function Home() {
 	console.log({ session });
 
 	return (
-		<main className={styles.page}>
+		<main className='flex min-h-screen flex-col items-center p-24 *:p-4'>
 			<h1 className={styles.title}>Welcome to Nest Auth Tutorial</h1>
 			<p className={styles.description}>
 				{session
@@ -19,6 +19,10 @@ export default async function Home() {
 					<a href='/auth/signin'>Go to Sign In</a>
 				</Button>
 			)}
+			<div className='flex flex-col gap-4 mt-4' />
+			<Button asChild>
+				<a href='/auth/signin'>Signin</a>
+			</Button>
 		</main>
 	);
 }

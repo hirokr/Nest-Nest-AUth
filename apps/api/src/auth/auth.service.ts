@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,12 +10,16 @@ import { verify } from 'argon2';
 import { AuthJwtPayload } from './types/auth-jwtPayload';
 import { JwtService } from '@nestjs/jwt';
 import { access } from 'fs';
+import refreshConfig from './config/refresh.config';
+import type { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    @Inject(refreshConfig.KEY)
+    private refreshTokenConfig: ConfigType<typeof refreshConfig>,
   ) {}
 
   async registerUser(createUserDto: CreateUserDto) {
@@ -41,25 +46,23 @@ export class AuthService {
   }
 
   async login(userId: number, name: string) {
-    const { accessToken } = await this.generateToken(userId);
-
-    if (accessToken === '') {
-      throw new UnauthorizedException('Token generation failed');
-    }
+    const { accessToken, refreshToken } = await this.generateToken(userId);
 
     return {
       id: userId,
       name: name,
       accessToken,
+      refreshToken,
     };
   }
 
   async generateToken(userId: number) {
     const payload: AuthJwtPayload = { sub: userId };
-    const [accessToken] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
+      this.jwtService.signAsync(payload, this.refreshTokenConfig),
     ]);
-    return { accessToken };
+    return { accessToken, refreshToken };
   }
 
   async validateJwtUser(userId: number) {
@@ -67,5 +70,9 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('User not found');
     const currentUser = { id: user.id };
     return currentUser;
+  }
+
+  async signOut(userId: number) {
+    return await this.userService.updateHashedRefreshToken(userId, null);
   }
 }

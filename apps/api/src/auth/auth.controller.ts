@@ -1,7 +1,15 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/user.dto';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -17,5 +25,19 @@ export class AuthController {
   async login(@Request() req) {
     console.log('signin');
     return this.authService.login(req.user.id, req.user.name);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('protected')
+  getAll(@Request() req) {
+    return {
+      message: 'This is a protected route',
+      user: req.user,
+    };
+  }
+
+  @Post('signout')
+  signOut(@Request() req) {
+    return this.authService.signOut(req.user.id);
   }
 }
