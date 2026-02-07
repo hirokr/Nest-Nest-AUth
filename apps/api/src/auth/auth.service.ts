@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
-import { verify } from 'argon2';
+import { hash, verify } from 'argon2';
 import { AuthJwtPayload } from './types/auth-jwtPayload';
 import { JwtService } from '@nestjs/jwt';
 import { access } from 'fs';
@@ -47,7 +47,9 @@ export class AuthService {
 
   async login(userId: number, name: string) {
     const { accessToken, refreshToken } = await this.generateToken(userId);
-
+    const hashedRT = await hash(refreshToken)
+    await this.userService.updateHashedRefreshToken(userId, hashedRT);
+    
     return {
       id: userId,
       name: name,
@@ -95,6 +97,14 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async validateGoogleUser(googleUser: CreateUserDto){
+    const user = await this.userService.findByEmail(googleUser.email);
+
+    if (user) return user;
+
+    return await this.userService.create(googleUser);
   }
 
   async signOut(userId: number) {
