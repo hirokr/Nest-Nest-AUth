@@ -47,9 +47,9 @@ export class AuthService {
 
   async login(userId: number, name: string) {
     const { accessToken, refreshToken } = await this.generateToken(userId);
-    const hashedRT = await hash(refreshToken)
+    const hashedRT = await hash(refreshToken);
     await this.userService.updateHashedRefreshToken(userId, hashedRT);
-    
+
     return {
       id: userId,
       name: name,
@@ -91,6 +91,10 @@ export class AuthService {
 
   async refreshToken(userId: number, name: string) {
     const { accessToken, refreshToken } = await this.generateToken(userId);
+    await this.userService.updateHashedRefreshToken(
+      userId,
+      await hash(refreshToken),
+    );
     return {
       id: userId,
       name: name,
@@ -99,7 +103,7 @@ export class AuthService {
     };
   }
 
-  async validateGoogleUser(googleUser: CreateUserDto){
+  async validateGoogleUser(googleUser: CreateUserDto) {
     const user = await this.userService.findByEmail(googleUser.email);
 
     if (user) return user;
