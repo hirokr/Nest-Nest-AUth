@@ -70,10 +70,10 @@ export async function signIn(
 			user: {
 				id: result.id,
 				name: result.name,
-				role: result.role,
+				role: result.role || "user",
 			},
 			accessToken: result.accessToken,
-			refreshToken: result.refreshToken,
+			// refreshToken: result.refreshToken,
 		});
 		redirect("/");
 	} else {

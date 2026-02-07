@@ -20,5 +20,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@nestjs/config": "^4.0.3",
+    "@nestjs/jwt": "^11.0.2"
+  }
 }

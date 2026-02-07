@@ -13,10 +13,15 @@ export type Session = {
 		role: Role;
 	};
 	accessToken: string;
-	refreshToken: string;
+	// refreshToken: string;
 };
 
-const secretKey = process.env.SESSION_SECRET_KEY!;
+const secretKey = process.env.SESSION_SECRET_KEY;
+if (!secretKey || secretKey.length === 0) {
+	throw new Error(
+		"SESSION_SECRET_KEY is missing or empty. Set a non-empty secret in your environment.",
+	);
+}
 const encodedKey = new TextEncoder().encode(secretKey);
 
 export async function createSession(payload: Session) {
@@ -76,7 +81,7 @@ export async function updateTokens({
 			...payload.user,
 		},
 		accessToken,
-		refreshToken,
+		// refreshToken,
 	};
 
 	await createSession(newPayload);
