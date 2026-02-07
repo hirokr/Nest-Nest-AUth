@@ -11,15 +11,16 @@ export async function GET(req: NextRequest) {
 	const refreshToken = searchParams.get("refreshToken");
 	const userId = searchParams.get("userId");
 	const name = searchParams.get("name");
+	const role = searchParams.get("role") as Role;
 
-	if (!accessToken || !refreshToken || !userId || !name) {
+	if (!accessToken || !refreshToken || !userId || !name || !role) {
 		throw new Error("Invalid query parameters");
 	}
 	await createSession({
 		user: {
 			id: userId,
 			name,
-			role: Role.USER,
+			role: role,
 		},
 		accessToken,
 		refreshToken,

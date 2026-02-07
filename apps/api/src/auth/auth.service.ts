@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { access } from 'fs';
 import refreshConfig from './config/refresh.config';
 import type { ConfigType } from '@nestjs/config';
+import { Role } from 'src/generated/prisma/enums';
 
 @Injectable()
 export class AuthService {
@@ -42,10 +43,11 @@ export class AuthService {
     return {
       id: user.id,
       name: user.name,
+      role: user.role,
     };
   }
 
-  async login(userId: number, name: string) {
+  async login(userId: number, name: string, role: Role) {
     const { accessToken, refreshToken } = await this.generateToken(userId);
     const hashedRT = await hash(refreshToken);
     await this.userService.updateHashedRefreshToken(userId, hashedRT);
@@ -53,6 +55,7 @@ export class AuthService {
     return {
       id: userId,
       name: name,
+      role: role,
       accessToken,
       refreshToken,
     };
@@ -70,7 +73,7 @@ export class AuthService {
   async validateJwtUser(userId: number) {
     const user = await this.userService.findOne(userId);
     if (!user) throw new UnauthorizedException('User not found');
-    const currentUser = { id: user.id };
+    const currentUser = { id: user.id, role: user.role };
     return currentUser;
   }
 
@@ -105,7 +108,7 @@ export class AuthService {
 
   async validateGoogleUser(googleUser: CreateUserDto) {
     const user = await this.userService.findByEmail(googleUser.email);
-
+    // const { password, ...rest } = user;
     if (user) return user;
 
     return await this.userService.create(googleUser);
