@@ -72,6 +72,31 @@ export class AuthService {
     return currentUser;
   }
 
+  async validateRefreshToken(userId: number, refreshToken: string) {
+    const user = await this.userService.findOne(userId);
+    if (!user || !user.hashedRefreshToken)
+      throw new UnauthorizedException('User not found');
+
+    const isRefreshTokenMatch = await verify(
+      user.hashedRefreshToken,
+      refreshToken,
+    );
+    if (!isRefreshTokenMatch)
+      throw new UnauthorizedException('Invalid refresh token');
+
+    return { id: user.id };
+  }
+
+  async refreshToken(userId: number, name: string) {
+    const { accessToken, refreshToken } = await this.generateToken(userId);
+    return {
+      id: userId,
+      name: name,
+      accessToken,
+      refreshToken,
+    };
+  }
+
   async signOut(userId: number) {
     return await this.userService.updateHashedRefreshToken(userId, null);
   }

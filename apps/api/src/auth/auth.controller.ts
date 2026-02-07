@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/user.dto';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
+import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -30,10 +31,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('protected')
   getAll(@Request() req) {
-    return {
-      message: 'This is a protected route',
-      user: req.user,
-    };
+    return this.authService.refreshToken(req.user.id, req.user.name);
+  }
+
+  @UseGuards(RefreshAuthGuard)
+  @Post('refresh')
+  refreshToken(@Request() req) {
+    const userId = req.user.id;
+    return this.authService.login(userId, req.user.name);
   }
 
   @Post('signout')
