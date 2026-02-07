@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { FormState, LoginFormSchema, SignupFormSchema } from "./type";
 import { createSession, updateTokens } from "./session";
 import { BACKEND_URL } from "./constants";
+import { email } from "zod";
 
 export async function signUp(
 	state: FormState,
@@ -47,6 +48,7 @@ export async function signIn(
 		email: formData.get("email"),
 		password: formData.get("password"),
 	});
+	// console.log(validatedFields.data);
 
 	if (!validatedFields.success) {
 		return {

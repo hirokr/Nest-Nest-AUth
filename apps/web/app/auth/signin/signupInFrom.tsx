@@ -8,6 +8,9 @@ import React, { useActionState } from "react";
 
 const SignInForm = () => {
 	const [state, action] = useActionState(signIn, undefined);
+	const [email, setEmail] = React.useState("hirokr0625@gmail.com");
+	const [password, setPassword] = React.useState("rahul#1122");
+
 	return (
 		<form action={action}>
 			<div className='flex flex-col gap-2 w-64'>
@@ -21,6 +24,8 @@ const SignInForm = () => {
 						name='email'
 						placeholder='m@example.com'
 						type='email'
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
 					/>
 				</div>
 				{state?.error?.email && (
@@ -29,7 +34,13 @@ const SignInForm = () => {
 
 				<div>
 					<Label htmlFor='password'>Password</Label>
-					<Input id='password' type='password' name='password' />
+					<Input
+						id='password'
+						type='password'
+						name='password'
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+					/>
 				</div>
 				{state?.error?.password && (
 					<p className='text-sm text-red-500'>{state.error.password}</p>
